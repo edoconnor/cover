@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
@@ -28,4 +29,5 @@ def point_in_rectangle(point, rect):
     return rx1 <= px <= rx2 and ry1 <= py <= ry2
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)

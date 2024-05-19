@@ -4,12 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rectangle Coverage Checker</title>
-    <!-- Bootstrap CSS -->
     <link
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <!-- Custom CSS -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
@@ -39,7 +37,6 @@
       <canvas id="canvas" width="500" height="500"></canvas>
     </div>
 
-    <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -69,7 +66,7 @@
         if (!isDrawing) return;
         endX = e.offsetX;
         endY = e.offsetY;
-        redrawCanvas(); // Redraw all rectangles with the new one
+        redrawCanvas(); 
         ctx.beginPath();
         ctx.rect(startX, startY, endX - startX, endY - startY);
         ctx.stroke();
@@ -86,12 +83,12 @@
             ctx.strokeStyle = "blue";
           }
           isDrawing = false;
-          redrawCanvas(); // Final redraw to ensure all rectangles are shown
+          redrawCanvas(); 
         }
       });
 
       function redrawCanvas() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height); 
         if (target) {
           ctx.beginPath();
           ctx.rect(

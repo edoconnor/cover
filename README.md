@@ -31,4 +31,3 @@ The coverage algorithm works by checking if all corners of the target rectangle 
 3. **Determine Coverage**:
    - If all corners of the target rectangle are covered by at least one region rectangle, the target is considered covered. Otherwise, it is not covered.
 
-### Example Code Explanation

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rectangle Coverage Checker</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <style>
+      #canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Rectangle Coverage Checker</h1>
+      <div class="btn-group mb-3">
+        <button class="btn btn-primary" onclick="setMode('target')">
+          Set Target
+        </button>
+        <button class="btn btn-secondary" onclick="setMode('region')">
+          Set Region
+        </button>
+        <button class="btn btn-success" onclick="checkCoverage()">
+          Check Coverage
+        </button>
+        <button class="btn btn-danger" onclick="clearCanvas()">Clear</button>
+      </div>
+      <p id="result" class="alert alert-info">Result: None</p>
+      <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      let mode = null;
+      let isDrawing = false;
+      let startX, startY, endX, endY;
+      let target = null;
+      let regions = [];
+
+      function setMode(newMode) {
+        mode = newMode;
+        document.getElementById("result").innerText =
+          "Mode: " + (mode === "target" ? "Setting Target" : "Adding Regions");
+      }
+
+      canvas.addEventListener("mousedown", function (e) {
+        startX = e.offsetX;
+        startY = e.offsetY;
+        isDrawing = true;
+      });
+
+      canvas.addEventListener("mousemove", function (e) {
+        if (!isDrawing) return;
+        endX = e.offsetX;
+        endY = e.offsetY;
+        redrawCanvas(); // Redraw all rectangles with the new one
+        ctx.beginPath();
+        ctx.rect(startX, startY, endX - startX, endY - startY);
+        ctx.stroke();
+      });
+
+      canvas.addEventListener("mouseup", function (e) {
+        if (isDrawing) {
+          const rect = { x1: startX, y1: startY, x2: endX, y2: endY };
+          if (mode === "target") {
+            target = rect;
+            ctx.strokeStyle = "red";
+          } else if (mode === "region") {
+            regions.push(rect);
+            ctx.strokeStyle = "blue";
+          }
+          isDrawing = false;
+          redrawCanvas(); // Final redraw to ensure all rectangles are shown
+        }
+      });
+
+      function redrawCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+        if (target) {
+          ctx.beginPath();
+          ctx.rect(
+            target.x1,
+            target.y1,
+            target.x2 - target.x1,
+            target.y2 - target.y1
+          );
+          ctx.strokeStyle = "red";
+          ctx.stroke();
+        }
+        regions.forEach((rect) => {
+          ctx.beginPath();
+          ctx.rect(rect.x1, rect.y1, rect.x2 - rect.x1, rect.y2 - rect.y1);
+          ctx.strokeStyle = "blue";
+          ctx.stroke();
+        });
+      }
+
+      function checkCoverage() {
+        fetch("/check_coverage", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ target: target, regions: regions }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("result").innerText =
+              "Covered: " + data.covered;
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      function clearCanvas() {
+        target = null;
+        regions = [];
+        redrawCanvas();
+        document.getElementById("result").innerText = "Result: None";
+      }
+    </script>
+  </body>
+</html>
